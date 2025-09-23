@@ -1,0 +1,133 @@
+/* Markdown 容器样式 */
+.markdown-container {
+  @apply text-foreground;
+  line-height: 1.6;
+  word-wrap: break-word;
+  font-size: 14px;
+}
+
+/* 标题样式 */
+.markdown-container .markdown-heading {
+  @apply text-foreground font-semibold;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.markdown-container .markdown-heading-level-1 {
+  @apply text-2xl border-b border-border;
+  padding-bottom: 0.3em;
+}
+
+.markdown-container .markdown-heading-level-2 {
+  @apply text-xl;
+}
+
+.markdown-container .markdown-heading-level-3 {
+  @apply text-lg;
+}
+
+.markdown-container .markdown-heading-level-4 {
+  @apply text-base;
+}
+
+/* 段落样式 */
+.markdown-container .markdown-paragraph {
+  margin-bottom: 1em;
+}
+
+/* 代码块样式 */
+.markdown-container .markdown-code-block {
+  @apply bg-muted rounded-md border border-border;
+  padding: 1em;
+  margin: 1em 0;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.markdown-container .markdown-code-block code {
+  background: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  white-space: pre;
+  word-wrap: normal;
+  overflow-wrap: normal;
+}
+
+/* 行内代码样式 */
+.markdown-container code:not(.hljs) {
+  @apply bg-muted text-foreground rounded px-1;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+/* 引用块样式 */
+.markdown-container .markdown-blockquote {
+  @apply border-l-4 border-primary bg-muted/50 pl-4 py-2 my-4;
+  font-style: italic;
+}
+
+/* 列表样式 */
+.markdown-container .markdown-list {
+  margin: 1em 0;
+  padding-left: 2em;
+}
+
+.markdown-container .markdown-list-item {
+  margin-bottom: 0.25em;
+}
+
+/* 链接样式 */
+.markdown-container .markdown-link {
+  @apply text-primary hover:text-primary/80 underline;
+  text-decoration: underline;
+}
+
+.markdown-container .markdown-link:hover {
+  text-decoration: none;
+}
+
+/* 表格样式 */
+.markdown-container .markdown-table-wrapper {
+  @apply overflow-x-auto my-4;
+}
+
+.markdown-container .markdown-table {
+  @apply w-full border-collapse border border-border;
+  min-width: 100%;
+}
+
+.markdown-container .markdown-table-header {
+  @apply bg-muted font-semibold text-left px-3 py-2 border border-border;
+}
+
+.markdown-container .markdown-table-cell {
+  @apply px-3 py-2 border border-border relative;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.markdown-container .markdown-table-cell:hover::after {
+  content: attr(data-full-text);
+  @apply absolute bg-background border border-border rounded shadow-lg p-2 z-10;
+  top: 100%;
+  left: 0;
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 300px;
+}
+
+/* 图片样式 */
+.markdown-container .markdown-image {
+  @apply max-w-full h-auto rounded border border-border;
+  display: block;
+  margin: 1em auto;
+}
+
+/* 分割线样式 */
+.markdown-container hr {
+  @apply border-0 border-t border-border my-6;
+}
