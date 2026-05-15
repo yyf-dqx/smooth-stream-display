@@ -68,27 +68,34 @@ export default function AgentCard({ agent }: Props) {
 
       <div className="text-[11px] text-muted-foreground mt-2">{agent.task}</div>
 
-      {/* progress dots */}
-      <div className="flex gap-1 mt-2">
-        {Array.from({ length: totalDots }).map((_, i) => (
-          <span
-            key={i}
-            className="w-1.5 h-1.5 rounded-full"
+      {/* progress bar (smooth) with dot ticks overlay */}
+      <div className="relative w-full mt-2 px-2">
+        <div className="relative h-1.5 rounded-full bg-muted/60 overflow-hidden">
+          <div
+            className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
             style={{
-              backgroundColor:
-                i < filled ? ringColor : "hsl(var(--muted))",
-              boxShadow: i < filled ? `0 0 4px ${ringColor}` : "none",
+              width: `${agent.progress}%`,
+              backgroundColor: ringColor,
+              boxShadow: `0 0 6px ${ringColor}`,
             }}
           />
-        ))}
+          {/* tick separators */}
+          <div className="absolute inset-0 flex justify-between px-[2px] pointer-events-none">
+            {Array.from({ length: totalDots - 1 }).map((_, i) => (
+              <span key={i} className="w-px h-full bg-background/60" />
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div className="text-[11px] text-foreground/80 mt-1">{agent.progress}%</div>
+      <div className="text-[11px] text-foreground/80 mt-1 tabular-nums transition-colors duration-500">
+        {agent.progress}%
+      </div>
 
       {/* status pill at bottom */}
       <div className="mt-auto pt-2 flex items-center gap-1.5 text-[10px] text-muted-foreground">
         <span
-          className="w-1.5 h-1.5 rounded-full pulse-dot"
+          className="w-1.5 h-1.5 rounded-full pulse-dot transition-all duration-500 ease-out"
           style={{
             backgroundColor: `hsl(${STATUS_HSL[agent.status]})`,
             boxShadow: `0 0 6px hsl(${STATUS_HSL[agent.status]})`,
