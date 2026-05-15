@@ -1,7 +1,11 @@
 import { VCSO_STATS } from "@/data/warroom";
 
-export default function VCSOCard() {
-  const s = VCSO_STATS;
+interface Props {
+  stats?: typeof VCSO_STATS;
+}
+
+export default function VCSOCard({ stats = VCSO_STATS }: Props) {
+  const s = stats;
   return (
     <div className="vcso-card p-5 flex flex-col items-center text-center h-full">
       <div
@@ -42,8 +46,8 @@ export default function VCSOCard() {
 
 function Stat({ value, label, color }: { value: string; label: string; color: string }) {
   return (
-    <div className="rounded-md py-2 bg-muted/40 border border-border/60">
-      <div className="text-base font-semibold" style={{ color: `hsl(${color})` }}>
+    <div className="rounded-md py-2 bg-muted/40 border border-border/60 transition-colors">
+      <div className="text-base font-semibold tabular-nums" style={{ color: `hsl(${color})` }}>
         {value}
       </div>
       <div className="text-[10px] text-muted-foreground mt-0.5">{label}</div>
