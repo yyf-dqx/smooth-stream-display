@@ -15,7 +15,7 @@ export const CharacterStreamRenderer: React.FC<CharacterStreamRendererProps> = (
 }) => {
   const previewRef = useRef<HTMLIFrameElement>(null);
   const bufferRef = useRef<string>('');
-  const renderTimeoutRef = useRef<NodeJS.Timeout>();
+  const renderTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   
   const [status, setStatus] = useState<'idle' | 'streaming' | 'completed'>('idle');
   const [charCount, setCharCount] = useState(0);

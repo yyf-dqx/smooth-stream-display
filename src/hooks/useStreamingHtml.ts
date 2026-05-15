@@ -16,7 +16,7 @@ export const useStreamingHtml = (options: UseStreamingHtmlOptions = {}) => {
   
   const cssInliner = useRef(new CSSInliner()).current;
   const accumulatedContent = useRef<string>('');
-  const updateTimeout = useRef<NodeJS.Timeout>();
+  const updateTimeout = useRef<ReturnType<typeof setTimeout>>();
 
   /**
    * 处理流式数据块

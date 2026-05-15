@@ -2,95 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
-
+/* 数字员工作战室 - Design System (HSL only) */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 222 40% 9%;
+    --card-foreground: 210 40% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 222 40% 9%;
+    --popover-foreground: 210 40% 96%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 188 95% 55%;
+    --primary-foreground: 222 47% 6%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217 32% 17%;
+    --secondary-foreground: 210 40% 96%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 217 32% 14%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 188 95% 55%;
+    --accent-foreground: 222 47% 6%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 217 32% 20%;
+    --input: 217 32% 17%;
+    --ring: 188 95% 55%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
+    /* War room agent category colors */
+    --agent-cyan: 188 95% 55%;
+    --agent-green: 142 76% 55%;
+    --agent-orange: 25 95% 60%;
+    --agent-purple: 270 85% 65%;
+    --agent-red: 0 85% 62%;
+    --agent-yellow: 48 96% 60%;
+    --agent-pink: 330 85% 65%;
+    --agent-blue: 217 91% 60%;
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Status */
+    --status-online: 142 76% 50%;
+    --status-busy: 25 95% 60%;
+    --status-warn: 0 85% 62%;
 
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 222 47% 6%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 188 95% 55%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 217 32% 17%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 217 32% 20%;
+    --sidebar-ring: 188 95% 55%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --background: 222 47% 6%;
+    --foreground: 210 40% 96%;
   }
 }
 
@@ -98,8 +70,50 @@ All colors MUST be HSL.
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+      "Microsoft YaHei", system-ui, sans-serif;
+  }
+}
+
+/* War room background grid + glow */
+@layer utilities {
+  .warroom-bg {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% 50%, hsl(188 95% 55% / 0.08), transparent 60%),
+      radial-gradient(circle at 20% 20%, hsl(270 85% 65% / 0.05), transparent 50%),
+      radial-gradient(circle at 80% 80%, hsl(330 85% 65% / 0.05), transparent 50%);
+  }
+
+  .agent-card {
+    @apply relative rounded-xl border bg-card/60 backdrop-blur-sm transition-all duration-300;
+    border-color: hsl(var(--border));
+  }
+  .agent-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 24px hsl(var(--primary) / 0.25);
+    border-color: hsl(var(--primary) / 0.5);
+  }
+
+  .vcso-card {
+    @apply relative rounded-xl border-2 bg-card/80 backdrop-blur;
+    border-color: hsl(48 96% 60%);
+    box-shadow:
+      0 0 40px hsl(48 96% 60% / 0.35),
+      inset 0 0 30px hsl(48 96% 60% / 0.08);
+  }
+
+  .ring-glow {
+    box-shadow: 0 0 18px currentColor, inset 0 0 10px currentColor;
+  }
+
+  .pulse-dot {
+    animation: pulse-soft 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
   }
 }
