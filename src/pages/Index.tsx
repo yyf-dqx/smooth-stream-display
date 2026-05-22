@@ -2,6 +2,7 @@ import WarroomHeader from "@/components/warroom/WarroomHeader";
 import VCSOCard from "@/components/warroom/VCSOCard";
 import AgentCard from "@/components/warroom/AgentCard";
 import CategoryLegend from "@/components/warroom/CategoryLegend";
+import ConnectionLines from "@/components/warroom/ConnectionLines";
 import { useWarroomRealtime } from "@/hooks/useWarroomRealtime";
 
 const Index = () => {
