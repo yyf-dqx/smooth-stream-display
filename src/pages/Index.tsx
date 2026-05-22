@@ -54,6 +54,7 @@ const Index = () => {
       <footer className="text-center text-xs text-muted-foreground py-3 border-t border-border/40">
         © 2024 赤宵安全 | 数字员工作战室 v4.0
       </footer>
+      </div>
     </div>
   );
 };
