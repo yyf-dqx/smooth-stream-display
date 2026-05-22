@@ -14,7 +14,10 @@ const Index = () => {
   });
 
   return (
-    <div className="warroom-bg min-h-screen flex flex-col">
+    <div className="warroom-bg min-h-screen flex flex-col relative overflow-hidden">
+      <ConnectionLines />
+
+      <div className="relative z-10 flex flex-col flex-1">
       <WarroomHeader
         online={stats.online}
         tasksPerHour={8294}
