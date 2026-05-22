@@ -26,8 +26,19 @@ export default function AgentCard({ agent }: Props) {
   const totalDots = 10;
   const filled = Math.round((agent.progress / 100) * totalDots);
 
+  // 让每张卡片错峰浮动：基于 id 生成稳定的延迟 / 时长
+  const hash = Array.from(agent.id).reduce((s, c) => s + c.charCodeAt(0), 0);
+  const floatDelay = -((hash % 60) / 10); // -0 ~ -5.9s
+  const floatDuration = 5 + (hash % 35) / 10; // 5 ~ 8.4s
+
   return (
-    <div className="agent-card p-4 flex flex-col items-center text-center min-h-[200px]">
+    <div
+      className="agent-card p-4 flex flex-col items-center text-center min-h-[200px]"
+      style={{
+        animationDelay: `${floatDelay}s`,
+        animationDuration: `${floatDuration}s`,
+      }}
+    >
       {/* small connector node at top */}
       <span
         className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full"
