@@ -4,56 +4,80 @@ import AgentCard from "@/components/warroom/AgentCard";
 import CategoryLegend from "@/components/warroom/CategoryLegend";
 import ConnectionLines from "@/components/warroom/ConnectionLines";
 import { useWarroomRealtime } from "@/hooks/useWarroomRealtime";
+import { getRingPosition } from "@/data/warroom";
 
 const Index = () => {
-  // 切换到真实接口：
-  //   useWarroomRealtime({ mode: "polling",   pollUrl: "/api/warroom/snapshot", pollInterval: 3000 })
-  //   useWarroomRealtime({ mode: "websocket", wsUrl: "wss://your-host/ws/warroom" })
   const { agents, stats, connected, lastUpdate } = useWarroomRealtime({
     mode: "mock",
   });
 
+  const total = agents.length;
+
   return (
     <div className="warroom-bg min-h-screen flex flex-col relative overflow-hidden">
-      <ConnectionLines />
-
       <div className="relative z-10 flex flex-col flex-1">
-      <WarroomHeader
-        online={stats.online}
-        tasksPerHour={8294}
-        systemHealthy={stats.health >= 85}
-        connected={connected}
-        lastUpdate={lastUpdate}
-      />
+        <WarroomHeader
+          online={stats.online}
+          tasksPerHour={8294}
+          systemHealthy={stats.health >= 85}
+          connected={connected}
+          lastUpdate={lastUpdate}
+        />
 
-      <main className="flex-1 px-6 py-6">
-        <div
-          className="grid gap-4 max-w-[1400px] mx-auto"
-          style={{
-            gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
-            gridTemplateRows: "repeat(4, minmax(210px, auto))",
-          }}
-        >
-          <div style={{ gridColumn: 3, gridRow: "2 / span 2" }}>
-            <VCSOCard stats={stats} />
+        <main className="flex-1 px-6 py-6">
+          {/* Circular constellation: VCSO at center, agents on a ring */}
+          <div
+            className="relative mx-auto"
+            style={{
+              maxWidth: 1400,
+              height: "min(82vh, 900px)",
+              minHeight: 720,
+            }}
+          >
+            {/* SVG connection layer (absolute, fills container) */}
+            <ConnectionLines agents={agents} />
+
+            {/* VCSO commander — dead center */}
+            <div
+              className="absolute"
+              style={{
+                left: "50%",
+                top: "50%",
+                transform: "translate(-50%, -50%)",
+                width: 260,
+                zIndex: 20,
+              }}
+            >
+              <VCSOCard stats={stats} />
+            </div>
+
+            {/* Agents on the ring */}
+            {agents.map((agent) => {
+              const { x, y } = getRingPosition(agent.order, total);
+              return (
+                <div
+                  key={agent.id}
+                  className="absolute"
+                  style={{
+                    left: `${x}%`,
+                    top: `${y}%`,
+                    transform: "translate(-50%, -50%)",
+                    width: 200,
+                    zIndex: 15,
+                  }}
+                >
+                  <AgentCard agent={agent} />
+                </div>
+              );
+            })}
           </div>
 
-          {agents.map((agent) => (
-            <div
-              key={agent.id}
-              style={{ gridColumn: agent.col, gridRow: agent.row }}
-            >
-              <AgentCard agent={agent} />
-            </div>
-          ))}
-        </div>
+          <CategoryLegend />
+        </main>
 
-        <CategoryLegend />
-      </main>
-
-      <footer className="text-center text-xs text-muted-foreground py-3 border-t border-border/40">
-        © 2024 赤宵安全 | 数字员工作战室 v4.0
-      </footer>
+        <footer className="text-center text-xs text-muted-foreground py-3 border-t border-border/40">
+          © 2024 赤宵安全 | 数字员工作战室 v4.0
+        </footer>
       </div>
     </div>
   );
