@@ -1,59 +1,110 @@
-// 动态连接线背景 SVG - 数字员工作战室
-// 在节点之间用贝塞尔曲线 + 沿路径运动的圆点呈现"数据流"效果
+// 动态连接线 - VCSO 居中，向所有数字员工辐射；同时绘制员工之间的协作关系
+// 路径终点沿用 getRingPosition 计算，保证与卡片位置完全对齐
+import { Agent, AGENT_RELATIONS, CATEGORY_META, getRingPosition } from "@/data/warroom";
 
-type Connection = {
-  id: string;
-  d: string;
-  color: string;
-  dur1: number;
-  dur2: number;
-  begin: number;
-};
+interface Props {
+  agents: Agent[];
+}
 
-const CONNECTIONS: Connection[] = [
-  { id: "cp-0",  d: "M12,10 Q21,2 30,10",     color: "#00BFA5", dur1: 2.5, dur2: 3.0, begin: 0.0 },
-  { id: "cp-1",  d: "M30,10 Q46,2 62,10",     color: "#2962FF", dur1: 3.0, dur2: 3.5, begin: 0.2 },
-  { id: "cp-2",  d: "M62,10 Q71,2 80,10",     color: "#FF6D00", dur1: 3.5, dur2: 4.0, begin: 0.4 },
-  { id: "cp-3",  d: "M62,10 Q37,17 12,40",    color: "#FF6D00", dur1: 2.5, dur2: 3.0, begin: 0.6 },
-  { id: "cp-4",  d: "M80,10 Q63,24.5 46,55",  color: "#00C853", dur1: 3.0, dur2: 3.5, begin: 0.8 },
-  { id: "cp-5",  d: "M12,40 Q21,32 30,40",    color: "#AA00FF", dur1: 3.5, dur2: 4.0, begin: 1.0 },
-  { id: "cp-6",  d: "M30,40 Q30,47 30,70",    color: "#AA00FF", dur1: 2.5, dur2: 3.0, begin: 1.2 },
-  { id: "cp-7",  d: "M30,70 Q38,54.5 46,55",  color: "#D50000", dur1: 3.0, dur2: 3.5, begin: 1.4 },
-  { id: "cp-8",  d: "M62,40 Q71,32 80,40",    color: "#64DD17", dur1: 3.5, dur2: 4.0, begin: 1.6 },
-  { id: "cp-9",  d: "M80,40 Q80,47 80,70",    color: "#FFAB00", dur1: 2.5, dur2: 3.0, begin: 1.8 },
-  { id: "cp-10", d: "M80,70 Q63,54.5 46,55",  color: "#0091EA", dur1: 3.0, dur2: 3.5, begin: 2.0 },
-  { id: "cp-11", d: "M46,55 Q54,54.5 62,70",  color: "#FFD600", dur1: 3.5, dur2: 4.0, begin: 2.2 },
-  { id: "cp-12", d: "M46,55 Q38,63.5 30,88",  color: "#FFD600", dur1: 2.5, dur2: 3.0, begin: 2.4 },
-  { id: "cp-13", d: "M30,88 Q46,80 62,88",    color: "#00B8D4", dur1: 3.0, dur2: 3.5, begin: 2.6 },
-  { id: "cp-14", d: "M62,88 Q54,63.5 46,55",  color: "#00B8D4", dur1: 3.5, dur2: 4.0, begin: 2.8 },
-];
+const CENTER = { x: 50, y: 50 };
 
-const ConnectionLines = () => {
+/** 为关系网中每条连线分配一个唯一颜色（基于源 agent 的 category） */
+function relationColor(fromId: string, agents: Agent[]) {
+  const a = agents.find((x) => x.id === fromId);
+  if (!a) return "188 95% 55%";
+  return CATEGORY_META[a.category].hsl;
+}
+
+const ConnectionLines = ({ agents }: Props) => {
+  const total = agents.length;
+
+  // 1) 中心 → 每个员工的辐射连线（VCSO 下达指令）
+  const spokes = agents.map((a) => {
+    const p = getRingPosition(a.order, total);
+    return {
+      id: `spoke-${a.id}`,
+      d: `M${CENTER.x},${CENTER.y} L${p.x.toFixed(2)},${p.y.toFixed(2)}`,
+      hsl: CATEGORY_META[a.category].hsl,
+      dur: 3 + (a.order % 4) * 0.4,
+      begin: (a.order * 0.18).toFixed(2),
+    };
+  });
+
+  // 2) 员工之间的协作关系（按上传的关系图）
+  const relations = AGENT_RELATIONS.map(([from, to], idx) => {
+    const af = agents.find((x) => x.id === from);
+    const at = agents.find((x) => x.id === to);
+    if (!af || !at) return null;
+    const p1 = getRingPosition(af.order, total);
+    const p2 = getRingPosition(at.order, total);
+    // 用经过圆心方向偏移的控制点画弧线，避免直线穿过 VCSO
+    const mx = (p1.x + p2.x) / 2;
+    const my = (p1.y + p2.y) / 2;
+    const dx = mx - CENTER.x;
+    const dy = my - CENTER.y;
+    const len = Math.max(Math.hypot(dx, dy), 0.001);
+    // 控制点向外推 8 个单位形成弧度
+    const cx = mx + (dx / len) * 8;
+    const cy = my + (dy / len) * 8;
+    return {
+      id: `rel-${idx}`,
+      d: `M${p1.x.toFixed(2)},${p1.y.toFixed(2)} Q${cx.toFixed(2)},${cy.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)}`,
+      hsl: relationColor(from, agents),
+      dur: 3.5 + (idx % 3) * 0.5,
+      begin: (idx * 0.25).toFixed(2),
+    };
+  }).filter(Boolean) as Array<{ id: string; d: string; hsl: string; dur: number; begin: string }>;
+
   return (
     <svg
       className="absolute inset-0 w-full h-full pointer-events-none"
       viewBox="0 0 100 100"
       preserveAspectRatio="none"
-      style={{ zIndex: 0 }}
+      style={{ zIndex: 5 }}
       aria-hidden="true"
     >
-      {CONNECTIONS.map((c) => (
+      {/* 中心装饰圆环 */}
+      <circle cx={CENTER.x} cy={CENTER.y} r={6} fill="none" stroke="hsl(48 96% 60% / 0.25)" strokeWidth={0.12} />
+      <circle cx={CENTER.x} cy={CENTER.y} r={38} fill="none" stroke="hsl(188 95% 55% / 0.08)" strokeWidth={0.1} strokeDasharray="0.6 0.8" />
+
+      {/* VCSO → 员工 的辐射线 */}
+      {spokes.map((c) => (
         <g key={c.id}>
           <path
             id={c.id}
             d={c.d}
             fill="none"
-            stroke={c.color}
-            strokeWidth={0.15}
-            opacity={0.3}
+            stroke={`hsl(${c.hsl})`}
+            strokeWidth={0.14}
+            opacity={0.32}
           />
-          <circle r={0.6} fill={c.color} opacity={0.8}>
-            <animateMotion dur={`${c.dur1}s`} repeatCount="indefinite" begin={`${c.begin}s`}>
+          <circle r={0.55} fill={`hsl(${c.hsl})`} opacity={0.9}>
+            <animateMotion dur={`${c.dur}s`} repeatCount="indefinite" begin={`${c.begin}s`}>
               <mpath href={`#${c.id}`} />
             </animateMotion>
           </circle>
-          <circle r={0.4} fill={c.color} opacity={0.5}>
-            <animateMotion dur={`${c.dur2}s`} repeatCount="indefinite" begin={`${c.begin + 1}s`}>
+          <circle r={0.35} fill={`hsl(${c.hsl})`} opacity={0.55}>
+            <animateMotion dur={`${c.dur + 0.6}s`} repeatCount="indefinite" begin={`${parseFloat(c.begin) + 1.2}s`}>
+              <mpath href={`#${c.id}`} />
+            </animateMotion>
+          </circle>
+        </g>
+      ))}
+
+      {/* 员工之间的协作关系连线 */}
+      {relations.map((c) => (
+        <g key={c.id}>
+          <path
+            id={c.id}
+            d={c.d}
+            fill="none"
+            stroke={`hsl(${c.hsl})`}
+            strokeWidth={0.18}
+            strokeDasharray="0.7 0.5"
+            opacity={0.55}
+          />
+          <circle r={0.5} fill={`hsl(${c.hsl})`} opacity={0.95}>
+            <animateMotion dur={`${c.dur}s`} repeatCount="indefinite" begin={`${c.begin}s`}>
               <mpath href={`#${c.id}`} />
             </animateMotion>
           </circle>
