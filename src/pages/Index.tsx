@@ -49,7 +49,7 @@ const Index = () => {
             }}
           >
             {/* SVG connection layer (absolute, fills container) */}
-            <ConnectionLines agents={agents} />
+            <ConnectionLines agents={agents} hoveredId={hoveredId} />
 
             {/* VCSO commander — dead center */}
             <div
@@ -68,23 +68,35 @@ const Index = () => {
             {/* Agents on the ring */}
             {agents.map((agent) => {
               const { x, y } = getRingPosition(agent.order, total);
+              const isHovered = hoveredId === agent.id;
+              const isRelated = relatedIds.has(agent.id);
+              const isDimmed = !!hoveredId && !isRelated;
               return (
                 <div
                   key={agent.id}
-                  className="absolute"
+                  className="absolute transition-all duration-300"
                   style={{
                     left: `${x}%`,
                     top: `${y}%`,
-                    transform: "translate(-50%, -50%)",
+                    transform: `translate(-50%, -50%) scale(${isHovered ? 1.08 : 1})`,
                     width: 200,
-                    zIndex: 15,
+                    zIndex: isHovered ? 25 : isRelated ? 18 : 15,
+                    opacity: isDimmed ? 0.35 : 1,
+                    filter: isHovered
+                      ? "drop-shadow(0 0 18px hsl(var(--primary) / 0.55))"
+                      : isRelated
+                      ? "drop-shadow(0 0 12px hsl(var(--primary) / 0.4))"
+                      : "none",
                   }}
+                  onMouseEnter={() => setHoveredId(agent.id)}
+                  onMouseLeave={() => setHoveredId(null)}
                 >
                   <AgentCard agent={agent} />
                 </div>
               );
             })}
           </div>
+
 
           <CategoryLegend />
         </main>
