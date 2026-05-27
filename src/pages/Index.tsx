@@ -1,15 +1,29 @@
+import { useState, useMemo } from "react";
 import WarroomHeader from "@/components/warroom/WarroomHeader";
 import VCSOCard from "@/components/warroom/VCSOCard";
 import AgentCard from "@/components/warroom/AgentCard";
 import CategoryLegend from "@/components/warroom/CategoryLegend";
 import ConnectionLines from "@/components/warroom/ConnectionLines";
 import { useWarroomRealtime } from "@/hooks/useWarroomRealtime";
-import { getRingPosition } from "@/data/warroom";
+import { getRingPosition, AGENT_RELATIONS } from "@/data/warroom";
 
 const Index = () => {
   const { agents, stats, connected, lastUpdate } = useWarroomRealtime({
     mode: "mock",
   });
+
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // 与 hovered agent 直接相关的 id 集合（含自身）
+  const relatedIds = useMemo(() => {
+    if (!hoveredId) return new Set<string>();
+    const set = new Set<string>([hoveredId]);
+    AGENT_RELATIONS.forEach(([a, b]) => {
+      if (a === hoveredId) set.add(b);
+      if (b === hoveredId) set.add(a);
+    });
+    return set;
+  }, [hoveredId]);
 
   const total = agents.length;
 
@@ -35,7 +49,7 @@ const Index = () => {
             }}
           >
             {/* SVG connection layer (absolute, fills container) */}
-            <ConnectionLines agents={agents} />
+            <ConnectionLines agents={agents} hoveredId={hoveredId} />
 
             {/* VCSO commander — dead center */}
             <div
@@ -54,23 +68,35 @@ const Index = () => {
             {/* Agents on the ring */}
             {agents.map((agent) => {
               const { x, y } = getRingPosition(agent.order, total);
+              const isHovered = hoveredId === agent.id;
+              const isRelated = relatedIds.has(agent.id);
+              const isDimmed = !!hoveredId && !isRelated;
               return (
                 <div
                   key={agent.id}
-                  className="absolute"
+                  className="absolute transition-all duration-300"
                   style={{
                     left: `${x}%`,
                     top: `${y}%`,
-                    transform: "translate(-50%, -50%)",
+                    transform: `translate(-50%, -50%) scale(${isHovered ? 1.08 : 1})`,
                     width: 200,
-                    zIndex: 15,
+                    zIndex: isHovered ? 25 : isRelated ? 18 : 15,
+                    opacity: isDimmed ? 0.35 : 1,
+                    filter: isHovered
+                      ? "drop-shadow(0 0 18px hsl(var(--primary) / 0.55))"
+                      : isRelated
+                      ? "drop-shadow(0 0 12px hsl(var(--primary) / 0.4))"
+                      : "none",
                   }}
+                  onMouseEnter={() => setHoveredId(agent.id)}
+                  onMouseLeave={() => setHoveredId(null)}
                 >
                   <AgentCard agent={agent} />
                 </div>
               );
             })}
           </div>
+
 
           <CategoryLegend />
         </main>
