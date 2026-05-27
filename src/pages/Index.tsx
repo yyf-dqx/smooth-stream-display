@@ -1,15 +1,29 @@
+import { useState, useMemo } from "react";
 import WarroomHeader from "@/components/warroom/WarroomHeader";
 import VCSOCard from "@/components/warroom/VCSOCard";
 import AgentCard from "@/components/warroom/AgentCard";
 import CategoryLegend from "@/components/warroom/CategoryLegend";
 import ConnectionLines from "@/components/warroom/ConnectionLines";
 import { useWarroomRealtime } from "@/hooks/useWarroomRealtime";
-import { getRingPosition } from "@/data/warroom";
+import { getRingPosition, AGENT_RELATIONS } from "@/data/warroom";
 
 const Index = () => {
   const { agents, stats, connected, lastUpdate } = useWarroomRealtime({
     mode: "mock",
   });
+
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // 与 hovered agent 直接相关的 id 集合（含自身）
+  const relatedIds = useMemo(() => {
+    if (!hoveredId) return new Set<string>();
+    const set = new Set<string>([hoveredId]);
+    AGENT_RELATIONS.forEach(([a, b]) => {
+      if (a === hoveredId) set.add(b);
+      if (b === hoveredId) set.add(a);
+    });
+    return set;
+  }, [hoveredId]);
 
   const total = agents.length;
 
