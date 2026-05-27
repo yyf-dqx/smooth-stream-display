@@ -19,12 +19,22 @@ export interface Agent {
   category: AgentCategory;
   progress: number;    // 0-100
   status: "online" | "busy" | "warn" | "joined";
-  joinDate: string;    // "0530入职" | "已入职"
-  /** position in 5-col x 4-row grid (col 1-5, row 1-4). Center cell (3, 2-3) reserved for VCSO */
-  col: number;
-  row: number;
-  rowSpan?: number;
+  joinDate: string;
+  /** clockwise order on the ring (0 = top of circle) */
+  order: number;
 }
+
+/** Inter-agent relationships (besides VCSO spokes), based on the workflow diagram. */
+export const AGENT_RELATIONS: Array<[string, string]> = [
+  ["SODE001", "SODE002"], // 语义接入 → 元数据治理
+  ["SODE002", "SODE003"], // 元数据治理 → 策略自治
+  ["SODE003", "SODE005"], // 策略自治 → 调查编排
+  ["SODE005", "SODE006"], // 调查编排 → 研判分析
+  ["SODE006", "SODE007"], // 研判分析 → 响应联动
+  ["SODE006", "SODE009"], // 研判分析 ↔ 漏洞研判
+  ["SODE010", "SODE008"], // 资产确权 → 代码审计
+  ["SODE008", "SODE009"], // 代码审计 → 漏洞研判
+];
 
 export const CATEGORY_META: Record<
   AgentCategory,
