@@ -1,31 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import WarroomHeader from "@/components/warroom/WarroomHeader";
 import VCSOCard from "@/components/warroom/VCSOCard";
 import AgentCard from "@/components/warroom/AgentCard";
 import CategoryLegend from "@/components/warroom/CategoryLegend";
 import ConnectionLines from "@/components/warroom/ConnectionLines";
 import { useWarroomRealtime } from "@/hooks/useWarroomRealtime";
-import { getRingPosition, AGENT_RELATIONS } from "@/data/warroom";
+import { cellToPercent } from "@/data/warroom";
 
 const Index = () => {
-  const { agents, stats, connected, lastUpdate } = useWarroomRealtime({
-    mode: "mock",
-  });
-
+  const { agents, stats, connected, lastUpdate } = useWarroomRealtime({ mode: "mock" });
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-
-  // 与 hovered agent 直接相关的 id 集合（含自身）
-  const relatedIds = useMemo(() => {
-    if (!hoveredId) return new Set<string>();
-    const set = new Set<string>([hoveredId]);
-    AGENT_RELATIONS.forEach(([a, b]) => {
-      if (a === hoveredId) set.add(b);
-      if (b === hoveredId) set.add(a);
-    });
-    return set;
-  }, [hoveredId]);
-
-  const total = agents.length;
 
   return (
     <div className="warroom-bg min-h-screen flex flex-col relative overflow-hidden">
@@ -39,38 +23,36 @@ const Index = () => {
         />
 
         <main className="flex-1 px-6 py-6">
-          {/* Circular constellation: VCSO at center, agents on a ring */}
           <div
             className="relative mx-auto"
             style={{
-              maxWidth: 1400,
-              height: "min(82vh, 900px)",
+              maxWidth: 1500,
+              height: "min(82vh, 920px)",
               minHeight: 720,
             }}
           >
-            {/* SVG connection layer (absolute, fills container) */}
+            {/* Connection layer */}
             <ConnectionLines agents={agents} hoveredId={hoveredId} />
 
-            {/* VCSO commander — dead center */}
+            {/* VCSO at center (cols 3, rows 2-3) */}
             <div
               className="absolute"
               style={{
                 left: "50%",
                 top: "50%",
                 transform: "translate(-50%, -50%)",
-                width: 260,
+                width: 240,
+                height: 380,
                 zIndex: 20,
               }}
             >
               <VCSOCard stats={stats} />
             </div>
 
-            {/* Agents on the ring */}
+            {/* Agent cards on a 5x4 grid */}
             {agents.map((agent) => {
-              const { x, y } = getRingPosition(agent.order, total);
+              const { x, y } = cellToPercent(agent.col, agent.row);
               const isHovered = hoveredId === agent.id;
-              const isRelated = relatedIds.has(agent.id);
-              const isDimmed = !!hoveredId && !isRelated;
               return (
                 <div
                   key={agent.id}
@@ -78,15 +60,9 @@ const Index = () => {
                   style={{
                     left: `${x}%`,
                     top: `${y}%`,
-                    transform: `translate(-50%, -50%) scale(${isHovered ? 1.08 : 1})`,
-                    width: 200,
-                    zIndex: isHovered ? 25 : isRelated ? 18 : 15,
-                    opacity: isDimmed ? 0.35 : 1,
-                    filter: isHovered
-                      ? "drop-shadow(0 0 18px hsl(var(--primary) / 0.55))"
-                      : isRelated
-                      ? "drop-shadow(0 0 12px hsl(var(--primary) / 0.4))"
-                      : "none",
+                    transform: `translate(-50%, -50%) scale(${isHovered ? 1.04 : 1})`,
+                    width: 230,
+                    zIndex: isHovered ? 25 : 15,
                   }}
                   onMouseEnter={() => setHoveredId(agent.id)}
                   onMouseLeave={() => setHoveredId(null)}
@@ -96,7 +72,6 @@ const Index = () => {
               );
             })}
           </div>
-
 
           <CategoryLegend />
         </main>
